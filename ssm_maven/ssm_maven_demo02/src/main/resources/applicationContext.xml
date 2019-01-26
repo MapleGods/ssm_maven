@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--包扫描-->
+    <context:component-scan base-package="com.demo.dao"/>
+    <!--数据库连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="jdbc:mysql://localhost:3306/maven"/>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+    </bean>
+
+    <!--注册SqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.demo.pojo"/>
+    </bean>
+    <!--映射扫描dao-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage"  value="com.demo.dao"/>
+    </bean>
+    <!--****************************************以上dao层**************************************************-->
+    <!--****************************************以下service层**************************************************-->
+    <!--包扫描-->
+    <context:component-scan base-package="com.demo.service"/>
+    <!--注册事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--添加事务声明-->
+    <tx:advice id="advice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="select*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="*" propagation="SUPPORTS" isolation="DEFAULT" rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--添加事务切面-->
+    <aop:config>
+        <aop:pointcut id="point01" expression="execution(* com.demo.service.impl.*.*(..))"/>
+        <aop:advisor advice-ref="advice" pointcut-ref="point01"/>
+    </aop:config>
+    <!--事务驱动注解-->
+    <tx:annotation-driven/>
+    <!---->
+</beans>

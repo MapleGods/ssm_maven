@@ -1,0 +1,15 @@
+dao: spring-mybatis:    applicationContext.xml
+1, 导入坐标;
+2, 注册连接池;
+3, 注册sqlSessionFactoryBeans;
+4, 映射扫描;
+service:
+ 1,包扫描;
+ 2,添加事务管理器
+
+controller
+1,包扫描
+2,注册视图管理器;
+3,加载前端控制器
+4,加载全局编码过滤器;
+5,导入applicationContext.xml文件
